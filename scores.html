@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Olympics Scores</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: rgba(0,0,0,0.5);
+      color: white;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.5em;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid white;
+      text-align: center;
+    }
+    th {
+      background-color: #444;
+    }
+    tr:nth-child(even) {
+      background-color: rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div id="score-table"></div>
+
+  <script>
+    async function fetchScores() {
+      const res = await fetch('https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/pub?output=csv');
+      const text = await res.text();
+      const rows = text.trim().split('\n').map(r => r.split(','));
+
+      let html = '<table><tr>';
+      rows[0].forEach(h => html += `<th>${h}</th>`);
+      html += '</tr>';
+
+      for (let i = 1; i < rows.length; i++) {
+        html += '<tr>';
+        rows[i].forEach(cell => html += `<td>${cell}</td>`);
+        html += '</tr>';
+      }
+      html += '</table>';
+
+      document.getElementById('score-table').innerHTML = html;
+    }
+
+    fetchScores();
+    setInterval(fetchScores, 10000); // Refresh every 10 seconds
+  </script>
+</body>
+</html>
