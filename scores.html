@@ -32,7 +32,7 @@
 
   <script>
     async function fetchScores() {
-      const res = await fetch('https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/pub?output=csv');
+      const res = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRqIU9WqO6OabqwJVanzHNpNps06bN-5aHy7dHCiDUa2VKLe-XCbgZ_emUH5ndm906qMHllHenlwAMU/pub?output=csv');
       const text = await res.text();
       const rows = text.trim().split('\n').map(r => r.split(','));
 
