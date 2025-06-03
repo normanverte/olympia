@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <title>Live Scores</title>
   <style>
     body {
       margin: 0;
+      padding: 20px;
       font-family: Arial, sans-serif;
-      background: rgba(0,0,0,0.5);
+      background-color: rgba(0,0,0,0.6);
       color: white;
     }
     table {
@@ -19,20 +22,22 @@
       text-align: center;
     }
     th {
-      background-color: #444;
+      background-color: #333;
     }
     tr:nth-child(even) {
-      background-color: rgba(255,255,255,0.1);
+      background-color: rgba(255, 255, 255, 0.1);
     }
   </style>
 </head>
 <body>
-  <div id="score-table">Laadin skoorid...</div>
+  <div id="score-table">Laadin tulemusi...</div>
 
   <script>
+    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6x3HikLShNLoJXDK7ZCYOIk4bsZDwBwbuZJgg2DD4h3ZvW4fXPR2u4-Grg4BmFxWE5oRpUgCmb3ek/pub?gid=1358986165&single=true&output=csv';
+
     async function fetchScores() {
       try {
-        const response = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vRqIU9WqO6OabqwJVanzHNpNps06bN-5aHy7dHCiDUa2VKLe-XCbgZ_emUH5ndm906qMHllHenlwAMU/pub?gid=0&single=true&output=csv');
+        const response = await fetch(url + '&_=' + new Date().getTime()); // cache-busting
         const text = await response.text();
         const rows = text.trim().split('\n').map(row => row.split(','));
 
@@ -48,14 +53,14 @@
         html += '</table>';
 
         document.getElementById('score-table').innerHTML = html;
-      } catch (error) {
-        document.getElementById('score-table').innerText = 'Skooride laadimisel tekkis viga.';
-        console.error('Error loading scores:', error);
+      } catch (err) {
+        document.getElementById('score-table').innerText = 'Tulemuste laadimisel tekkis viga.';
+        console.error(err);
       }
     }
 
     fetchScores();
-    setInterval(fetchScores, 10000); // värskendab iga 10 sekundi järel
+    setInterval(fetchScores, 10000); // refresh every 10 seconds
   </script>
 </body>
 </html>
