@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="et">
 <head>
   <meta charset="UTF-8">
-  <title>Live Scores</title>
+  <title>Kooliolümpia Tabel</title>
   <style>
     body {
       margin: 0;
       padding: 20px;
       font-family: Arial, sans-serif;
-      background-color: rgba(0,0,0,0.6);
+      background-color: rgba(0, 0, 0, 0.5);
       color: white;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 1.5em;
+      font-size: 1.4em;
     }
     th, td {
       padding: 10px;
       border: 1px solid white;
-      text-align: center;
+      text-align: left;
     }
     th {
       background-color: #333;
@@ -30,37 +30,61 @@
   </style>
 </head>
 <body>
-  <div id="score-table">Laadin tulemusi...</div>
+  <div id="score-table">Laadin...</div>
 
   <script>
     const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6x3HikLShNLoJXDK7ZCYOIk4bsZDwBwbuZJgg2DD4h3ZvW4fXPR2u4-Grg4BmFxWE5oRpUgCmb3ek/pub?gid=1358986165&single=true&output=csv';
 
+    const countryFlags = {
+      "Eesti": "🇪🇪", "Soome": "🇫🇮", "Läti": "🇱🇻", "Rootsi": "🇸🇪", "Taani": "🇩🇰",
+      "Saksamaa": "🇩🇪", "Prantsusmaa": "🇫🇷", "Portugal": "🇵🇹", "Kreeka": "🇬🇷",
+      "Kanada": "🇨🇦", "Austraalia": "🇦🇺", "Jaapan": "🇯🇵", "Tansaania": "🇹🇿",
+      "Costa Rica": "🇨🇷", "Singapur": "🇸🇬", "Tai": "🇹🇭", "Tšiili": "🇨🇱",
+      "India": "🇮🇳", "Uganda": "🇺🇬", "Jamaica": "🇯🇲", "Lõuna-Korea": "🇰🇷",
+      "Holland": "🇳🇱", "Uus-Meremaa": "🇳🇿", "Mehhiko": "🇲🇽", "Brasiilia": "🇧🇷",
+      "Kiribati": "🇰🇮", "Fidži": "🇫🇯", "Paapua Uus-Guinea": "🇵🇬", "Gruusia": "🇬🇪",
+      "Madagaskar": "🇲🇬", "Lõuna-Aafrika Vabariik": "🇿🇦"
+    };
+
+    function getFlag(name) {
+      return countryFlags[name.trim()] || "🏳️";
+    }
+
     async function fetchScores() {
       try {
-        const response = await fetch(url + '&_=' + new Date().getTime()); // cache-busting
+        const response = await fetch(url + '&_=' + new Date().getTime()); // cache busting
         const text = await response.text();
-        const rows = text.trim().split('\n').map(row => row.split(','));
+        const rows = text.trim().split('\n').map(r => r.split(','));
 
-        let html = '<table><tr>';
-        rows[0].forEach(header => html += `<th>${header}</th>`);
-        html += '</tr>';
+        // Filter valid country rows with total score
+        const data = rows
+          .slice(1) // Skip header
+          .map(row => ({
+            country: row[0],
+            score: parseInt(row[9]) || 0
+          }))
+          .filter(row => row.country && row.country.length > 0)
+          .sort((a, b) => b.score - a.score); // Sort by score descending
 
-        for (let i = 1; i < rows.length; i++) {
-          html += '<tr>';
-          rows[i].forEach(cell => html += `<td>${cell}</td>`);
-          html += '</tr>';
-        }
+        let html = '<table><tr><th>Koht</th><th>Riik</th><th>Punktid</th></tr>';
+        data.forEach((entry, i) => {
+          html += `<tr>
+            <td>${i + 1}</td>
+            <td>${getFlag(entry.country)} ${entry.country}</td>
+            <td>${entry.score}</td>
+          </tr>`;
+        });
         html += '</table>';
 
         document.getElementById('score-table').innerHTML = html;
       } catch (err) {
-        document.getElementById('score-table').innerText = 'Tulemuste laadimisel tekkis viga.';
+        document.getElementById('score-table').innerText = 'Tabeli laadimisel tekkis viga.';
         console.error(err);
       }
     }
 
     fetchScores();
-    setInterval(fetchScores, 10000); // refresh every 10 seconds
+    setInterval(fetchScores, 10000);
   </script>
 </body>
 </html>
