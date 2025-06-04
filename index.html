@@ -13,21 +13,21 @@
       text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
     }
 
-    #score-wrapper {
-      position: absolute;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100%);
-      opacity: 0;
-      animation: slideFadeIn 1.5s ease-out forwards;
-    }
+#score-wrapper {
+  position: fixed;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%) translateY(30%); /* less down */
+  opacity: 0;
+  animation: slideFadeIn 1.5s ease-out forwards;
+}
 
-    @keyframes slideFadeIn {
-      to {
-        transform: translateX(-50%) translateY(0);
-        opacity: 1;
-      }
-    }
+@keyframes slideFadeIn {
+  to {
+    transform: translateX(-50%) translateY(0%);
+    opacity: 1;
+  }
+}
 
     table {
       background-color: rgba(0, 0, 0, 0.6);
