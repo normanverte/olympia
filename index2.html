@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Olympic Scoreboard</title>
+  <style>
+    body {
+      margin: 0;
+      background: transparent;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+    }
+
+    #score-wrapper {
+      position: fixed;
+      bottom: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .scoreboard {
+      display: flex;
+      gap: 60px;
+      justify-content: center;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .entry {
+      display: flex;
+      align-items: center;
+      margin: 6px 0;
+      font-size: 1.3em;
+      white-space: nowrap;
+    }
+
+    .medal {
+      width: 1.8em;
+      text-align: center;
+      margin-right: 0.5em;
+    }
+
+    .flag {
+      width: 28px;
+      height: 20px;
+      object-fit: cover;
+      margin-right: 0.5em;
+      border-radius: 3px;
+    }
+
+    .score {
+      margin-left: auto;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="score-wrapper">
+    <div class="scoreboard" id="scoreboard"></div>
+  </div>
+
+  <script>
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS6x3HikLShNLoJXDK7ZCYOIk4bsZDwBwbuZJgg2DD4h3ZvW4fXPR2u4-Grg4BmFxWE5oRpUgCmb3ek/pub?gid=1358986165&single=true&output=csv";
+
+    // ISO country codes for flags (mapped from your Estonian names)
+    const countryMap = {
+      "Eesti": "ee",
+      "Soome": "fi",
+      "Läti": "lv",
+      "Rootsi": "se",
+      "Taani": "dk",
+      "Saksamaa": "de",
+      "Prantsusmaa": "fr",
+      "Portugal": "pt",
+      "Jaapan": "jp",
+      "Austraalia": "au",
+      "Tansaania": "tz",
+      "Uganda": "ug",
+      "Singapur": "sg",
+      "Tai": "th",
+      "Tšiili": "cl",
+      "Lõuna-Korea": "kr",
+      "Jamaica": "jm",
+      "Lõuna-Aafrika Vabariik": "za",
+      "Kanada": "ca",
+      "Mehhiko": "mx",
+      "Brasiilia": "br",
+      "Uus-Meremaa": "nz",
+      "Kiribati": "ki",
+      "Fidži": "fj",
+      "Paapua Uus-Guinea": "pg",
+      "Costa Rica": "cr",
+      "India": "in",
+      "Holland": "nl",
+      "Gruusia": "ge",
+      "Kreeka": "gr",
+      "Madagaskar": "mg"
+    };
+
+    function getMedal(index) {
+      return index === 0 ? "🥇" :
+             index === 1 ? "🥈" :
+             index === 2 ? "🥉" : `${index + 1}.`;
+    }
+
+    function getFlagUrl(code) {
+      return `https://flagcdn.com/w40/${code}.png`;
+    }
+
+    fetch(csvUrl)
+      .then(res => res.text())
+      .then(text => {
+        const rows = text.trim().split("\n").map(r => r.split(","));
+        const data = rows
+          .map(row => ({
+            country: row[0]?.trim(),
+            score: parseInt(row[9]) || 0
+          }))
+          .filter(row => row.country && !isNaN(row.score))
+          .sort((a, b) => b.score - a.score);
+
+        const half = Math.ceil(data.length / 2);
+        const left = data.slice(0, half);
+        const right = data.slice(half);
+
+        const createColumn = (items, offset = 0) => {
+          return `
+            <div class="column">
+              ${items.map((row, i) => {
+                const code = countryMap[row.country];
+                const flag = code ? `<img class="flag" src="${getFlagUrl(code)}" alt="${row.country}">` : "";
+                return `
+                  <div class="entry">
+                    <div class="medal">${getMedal(i + offset)}</div>
+                    ${flag}
+                    <div>${row.country}</div>
+                    <div class="score">${row.score}</div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
+        };
+
+        document.getElementById("scoreboard").innerHTML =
+          createColumn(left, 0) + createColumn(right, half);
+      });
+  </script>
+</body>
+</html>
