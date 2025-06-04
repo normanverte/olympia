@@ -84,44 +84,45 @@
     return `https://flagcdn.com/w40/${code}.png`;
   }
 
-  function loadScores() {
-    fetch(csvUrl)
-      .then(res => res.text())
-      .then(text => {
-        const rows = text.trim().split("\n").map(r => r.split(","));
-        const data = rows
-          .map(row => ({
-            country: row[0]?.trim(),
-            score: parseInt(row[9]) || 0
-          }))
-          .filter(row => row.country && !isNaN(row.score))
-          .sort((a, b) => b.score - a.score);
+function loadScores() {
+  const cacheBuster = Date.now();
+  fetch(`${csvUrl}&cb=${cacheBuster}`)
+    .then(res => res.text())
+    .then(text => {
+      const rows = text.trim().split("\n").map(r => r.split(","));
+      const data = rows
+        .map(row => ({
+          country: row[0]?.trim(),
+          score: parseInt(row[9]) || 0
+        }))
+        .filter(row => row.country && !isNaN(row.score))
+        .sort((a, b) => b.score - a.score);
 
-        const half = Math.ceil(data.length / 2);
-        const left = data.slice(0, half);
-        const right = data.slice(half);
+      const half = Math.ceil(data.length / 2);
+      const left = data.slice(0, half);
+      const right = data.slice(half);
 
-        const createColumn = (items, offset = 0) => `
-          <div class="column">
-            ${items.map((row, i) => {
-              const code = countryMap[row.country];
-              const flag = code ? `<img class="flag" src="${getFlagUrl(code)}" alt="${row.country}">` : "";
-              return `
-                <div class="entry">
-                  <div class="medal">${getMedal(i + offset)}</div>
-                  ${flag}
-                  <div>${row.country}</div>
-                  <div class="score">${row.score}</div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        `;
+      const createColumn = (items, offset = 0) => `
+        <div class="column">
+          ${items.map((row, i) => {
+            const code = countryMap[row.country];
+            const flag = code ? `<img class="flag" src="${getFlagUrl(code)}" alt="${row.country}">` : "";
+            return `
+              <div class="entry">
+                <div class="medal">${getMedal(i + offset)}</div>
+                ${flag}
+                <div>${row.country}</div>
+                <div class="score">${row.score}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
 
-        document.getElementById("scoreboard").innerHTML =
-          createColumn(left, 0) + createColumn(right, half);
-      });
-  }
+      document.getElementById("scoreboard").innerHTML =
+        createColumn(left, 0) + createColumn(right, half);
+    });
+}
 
   // Load immediately, then refresh every 30 seconds
   loadScores();
