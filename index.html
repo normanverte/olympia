@@ -4,33 +4,70 @@
   <meta charset="UTF-8">
   <title>Kooliolümpia Tabel</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-      background-color: rgba(0, 0, 0, 0.5);
+      padding: 0;
+      background-color: rgba(0, 0, 0, 0); /* Fully transparent */
+      font-family: 'Segoe UI', sans-serif;
       color: white;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
     }
+
+    #score-wrapper {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      opacity: 0;
+      animation: slideFadeIn 1.5s ease-out forwards;
+    }
+
+    @keyframes slideFadeIn {
+      to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+    }
+
     table {
-      width: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
       border-collapse: collapse;
-      font-size: 1.4em;
+      overflow: hidden;
+      font-size: 1.5em;
+      min-width: 500px;
+      max-width: 90vw;
     }
+
     th, td {
-      padding: 10px;
-      border: 1px solid white;
+      padding: 12px 20px;
       text-align: left;
     }
+
     th {
-      background-color: #333;
+      background-color: rgba(0, 0, 0, 0.8);
+      font-weight: bold;
     }
+
     tr:nth-child(even) {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    td:first-child {
+      text-align: center;
+      font-weight: bold;
+    }
+
+    td:last-child {
+      text-align: right;
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
-  <div id="score-table">Laadin...</div>
+  <div id="score-wrapper">
+    <div id="score-table">Laadin...</div>
+  </div>
 
   <script>
     const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6x3HikLShNLoJXDK7ZCYOIk4bsZDwBwbuZJgg2DD4h3ZvW4fXPR2u4-Grg4BmFxWE5oRpUgCmb3ek/pub?gid=1358986165&single=true&output=csv';
@@ -52,24 +89,24 @@
 
     async function fetchScores() {
       try {
-        const response = await fetch(url + '&_=' + new Date().getTime()); // cache busting
+        const response = await fetch(url + '&_=' + new Date().getTime()); // cache buster
         const text = await response.text();
         const rows = text.trim().split('\n').map(r => r.split(','));
 
-        // Filter valid country rows with total score
         const data = rows
-          .slice(1) // Skip header
+          .slice(1)
           .map(row => ({
             country: row[0],
             score: parseInt(row[9]) || 0
           }))
           .filter(row => row.country && row.country.length > 0)
-          .sort((a, b) => b.score - a.score); // Sort by score descending
+          .sort((a, b) => b.score - a.score);
 
         let html = '<table><tr><th>Koht</th><th>Riik</th><th>Punktid</th></tr>';
         data.forEach((entry, i) => {
+          const place = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
           html += `<tr>
-            <td>${i + 1}</td>
+            <td>${place}</td>
             <td>${getFlag(entry.country)} ${entry.country}</td>
             <td>${entry.score}</td>
           </tr>`;
