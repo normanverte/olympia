@@ -84,20 +84,12 @@
     return `https://flagcdn.com/w40/${code}.png`;
   }
 
-function loadScores() {
-  const cacheBuster = Date.now();
-  fetch(`${csvUrl}&cb=${cacheBuster}`)
-    .then(res => res.text())
-    .then(text => {
-      const rows = text.trim().split("\n").map(r => r.split(","));
-      const data = rows
-        .map(row => ({
-          country: row[0]?.trim(),
-          score: parseInt(row[9]) || 0
-        }))
-        .filter(row => row.country && !isNaN(row.score))
-        .sort((a, b) => b.score - a.score);
+const jsonUrl = "https://script.google.com/macros/s/AKfycbwX5eJtubZ0iLMGjgT_-sj7F2mfrhZB-cZUWthA5cR5l_JhoB5f7wj8CTQd9kmUkCd_/exec";  // ← your script URL
 
+function loadScores() {
+  fetch(jsonUrl)
+    .then(res => res.json())
+    .then(data => {
       const half = Math.ceil(data.length / 2);
       const left = data.slice(0, half);
       const right = data.slice(half);
