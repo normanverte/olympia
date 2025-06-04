@@ -1,127 +1,151 @@
 <!DOCTYPE html>
-<html lang="et">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Kooliolümpia Tabel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Olympic Scoreboard</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      background-color: rgba(0, 0, 0, 0); /* Fully transparent */
+      background: transparent;
       font-family: 'Segoe UI', sans-serif;
       color: white;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
     }
 
-#score-wrapper {
-  position: fixed;
-  bottom: 5%;
-  left: 50%;
-  transform: translateX(-50%) translateY(30%); /* less down */
-  opacity: 0;
-  animation: slideFadeIn 1.5s ease-out forwards;
-}
-
-@keyframes slideFadeIn {
-  to {
-    transform: translateX(-50%) translateY(0%);
-    opacity: 1;
-  }
-}
-
-    table {
-      background-color: rgba(0, 0, 0, 0.6);
-      border-radius: 10px;
-      border-collapse: collapse;
-      overflow: hidden;
-      font-size: 1.5em;
-      min-width: 500px;
-      max-width: 90vw;
+    #score-wrapper {
+      position: fixed;
+      bottom: 5%;
+      left: 50%;
+      transform: translateX(-50%) translateY(30%);
+      opacity: 0;
+      animation: slideFadeIn 1.5s ease-out forwards;
     }
 
-    th, td {
-      padding: 12px 20px;
-      text-align: left;
+    @keyframes slideFadeIn {
+      to {
+        transform: translateX(-50%) translateY(0%);
+        opacity: 1;
+      }
     }
 
-    th {
-      background-color: rgba(0, 0, 0, 0.8);
-      font-weight: bold;
+    .scoreboard {
+      display: flex;
+      gap: 60px;
+      justify-content: center;
     }
 
-    tr:nth-child(even) {
-      background-color: rgba(255, 255, 255, 0.05);
+    .column {
+      display: flex;
+      flex-direction: column;
     }
 
-    td:first-child {
+    .entry {
+      display: flex;
+      align-items: center;
+      margin: 6px 0;
+      font-size: 1.3em;
+      white-space: nowrap;
+    }
+
+    .medal {
+      width: 1.8em;
       text-align: center;
-      font-weight: bold;
+      margin-right: 0.5em;
     }
 
-    td:last-child {
-      text-align: right;
-      font-family: monospace;
+    .flag {
+      font-size: 1.3em;
+      margin-right: 0.4em;
+    }
+
+    .score {
+      margin-left: auto;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <div id="score-wrapper">
-    <div id="score-table">Laadin...</div>
+    <div class="scoreboard" id="scoreboard"></div>
   </div>
 
   <script>
-    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS6x3HikLShNLoJXDK7ZCYOIk4bsZDwBwbuZJgg2DD4h3ZvW4fXPR2u4-Grg4BmFxWE5oRpUgCmb3ek/pub?gid=1358986165&single=true&output=csv';
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS6x3HikLShNLoJXDK7ZCYOIk4bsZDwBwbuZJgg2DD4h3ZvW4fXPR2u4-Grg4BmFxWE5oRpUgCmb3ek/pub?gid=1358986165&single=true&output=csv";
 
     const countryFlags = {
-      "Eesti": "🇪🇪", "Soome": "🇫🇮", "Läti": "🇱🇻", "Rootsi": "🇸🇪", "Taani": "🇩🇰",
-      "Saksamaa": "🇩🇪", "Prantsusmaa": "🇫🇷", "Portugal": "🇵🇹", "Kreeka": "🇬🇷",
-      "Kanada": "🇨🇦", "Austraalia": "🇦🇺", "Jaapan": "🇯🇵", "Tansaania": "🇹🇿",
-      "Costa Rica": "🇨🇷", "Singapur": "🇸🇬", "Tai": "🇹🇭", "Tšiili": "🇨🇱",
-      "India": "🇮🇳", "Uganda": "🇺🇬", "Jamaica": "🇯🇲", "Lõuna-Korea": "🇰🇷",
-      "Holland": "🇳🇱", "Uus-Meremaa": "🇳🇿", "Mehhiko": "🇲🇽", "Brasiilia": "🇧🇷",
-      "Kiribati": "🇰🇮", "Fidži": "🇫🇯", "Paapua Uus-Guinea": "🇵🇬", "Gruusia": "🇬🇪",
-      "Madagaskar": "🇲🇬", "Lõuna-Aafrika Vabariik": "🇿🇦"
+      "Eesti": "🇪🇪",
+      "Soome": "🇫🇮",
+      "Läti": "🇱🇻",
+      "Rootsi": "🇸🇪",
+      "Taani": "🇩🇰",
+      "Saksamaa": "🇩🇪",
+      "Prantsusmaa": "🇫🇷",
+      "Portugal": "🇵🇹",
+      "Jaapan": "🇯🇵",
+      "Austraalia": "🇦🇺",
+      "Tansaania": "🇹🇿",
+      "Uganda": "🇺🇬",
+      "Singapur": "🇸🇬",
+      "Tai": "🇹🇭",
+      "Tšiili": "🇨🇱",
+      "Lõuna-Korea": "🇰🇷",
+      "Jamaica": "🇯🇲",
+      "Lõuna-Aafrika Vabariik": "🇿🇦",
+      "Kanada": "🇨🇦",
+      "Mehhiko": "🇲🇽",
+      "Brasiilia": "🇧🇷",
+      "Uus-Meremaa": "🇳🇿",
+      "Kiribati": "🇰🇮",
+      "Fidži": "🇫🇯",
+      "Paapua Uus-Guinea": "🇵🇬",
+      "Costa Rica": "🇨🇷",
+      "India": "🇮🇳",
+      "Holland": "🇳🇱",
+      "Gruusia": "🇬🇪",
+      "Kreeka": "🇬🇷",
+      "Madagaskar": "🇲🇬"
     };
 
-    function getFlag(name) {
-      return countryFlags[name.trim()] || "🏳️";
+    function getMedal(index) {
+      return index === 0 ? "🥇" :
+             index === 1 ? "🥈" :
+             index === 2 ? "🥉" : `${index + 1}.`;
     }
 
-    async function fetchScores() {
-      try {
-        const response = await fetch(url + '&_=' + new Date().getTime()); // cache buster
-        const text = await response.text();
-        const rows = text.trim().split('\n').map(r => r.split(','));
-
+    fetch(csvUrl)
+      .then(res => res.text())
+      .then(text => {
+        const rows = text.trim().split("\n").map(r => r.split(","));
         const data = rows
-          .slice(1)
           .map(row => ({
-            country: row[0],
+            country: row[0]?.trim(),
             score: parseInt(row[9]) || 0
           }))
-          .filter(row => row.country && row.country.length > 0)
+          .filter(row => row.country && !isNaN(row.score))
           .sort((a, b) => b.score - a.score);
 
-        let html = '<table><tr><th>Koht</th><th>Riik</th><th>Punktid</th></tr>';
-        data.forEach((entry, i) => {
-          const place = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (i + 1);
-          html += `<tr>
-            <td>${place}</td>
-            <td>${getFlag(entry.country)} ${entry.country}</td>
-            <td>${entry.score}</td>
-          </tr>`;
-        });
-        html += '</table>';
+        const half = Math.ceil(data.length / 2);
+        const left = data.slice(0, half);
+        const right = data.slice(half);
 
-        document.getElementById('score-table').innerHTML = html;
-      } catch (err) {
-        document.getElementById('score-table').innerText = 'Tabeli laadimisel tekkis viga.';
-        console.error(err);
-      }
-    }
+        const createColumn = (items, offset = 0) => {
+          return `
+            <div class="column">
+              ${items.map((row, i) => `
+                <div class="entry">
+                  <div class="medal">${getMedal(i + offset)}</div>
+                  <div class="flag">${countryFlags[row.country] || ""}</div>
+                  <div>${row.country}</div>
+                  <div class="score">${row.score}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        };
 
-    fetchScores();
-    setInterval(fetchScores, 10000);
+        document.getElementById("scoreboard").innerHTML =
+          createColumn(left, 0) + createColumn(right, half);
+      });
   </script>
 </body>
 </html>
